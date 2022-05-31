@@ -103,7 +103,28 @@ function displayEmployees() {
     })
   };
 
-// View/Display Departments
+// View Departments
+
+function viewDepartments(){
+    const depQuery = `SELECT * FROM department`
+    connection.query(depQuery, (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+      })
+}
+
+// View Roles
+function viewRoles(){
+    const roleQuery = `SELECT * FROM role`
+    connection.query(roleQuery, (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+      })
+}
+
+
 
 
 
