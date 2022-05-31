@@ -18,4 +18,16 @@ connection.connect(function (err) {
     console.log("Connected as id " + connection.threadId);
     init();
   });
+
+  function init() {
+      inquirer.prompt({
+          type: "list",
+          name: "start",
+          message: "Please make a selection from the following:",
+          choices: ["View All Employees", "View All Departments", "View All Roles", "View All Employees By Department", "View All Employees By Manager",
+          "Add Employee", "Remove Employee", "Update Employee Role", "Add Employee Role", "Remove Role", "Add New Department", "Remove Department"]
+      })
+
+        
+  };
   
