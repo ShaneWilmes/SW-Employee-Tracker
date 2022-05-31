@@ -96,10 +96,14 @@ function displayEmployees() {
     LEFT JOIN department ON role.department_id = department.id 
     LEFT JOIN employee manager ON  employee.manager_id = manager.id`
   
-    connection.query(emQuery, (err, data) => {
+    connection.query(empQuery, (err, data) => {
       if (err) throw err;
       console.table(data);
       init();
     })
   };
+
+// View/Display Departments
+
+
 
