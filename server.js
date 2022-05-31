@@ -87,4 +87,19 @@ function init() {
 
 };
 
+// Display all employees
+function displayEmployees() {
+    const empQuery = `SELECT employee.id, employee.first_name, employee.last_name, role.title AS role, 
+    CONCAT(manager.first_name,' ',manager.last_name) AS manager, department.name
+    FROM employee 
+    LEFT JOIN role ON employee.role_id = role.id 
+    LEFT JOIN department ON role.department_id = department.id 
+    LEFT JOIN employee manager ON  employee.manager_id = manager.id`
+  
+    connection.query(emQuery, (err, data) => {
+      if (err) throw err;
+      console.table(data);
+      init();
+    })
+  };
 
