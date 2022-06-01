@@ -253,7 +253,7 @@ function removeEmployee() {
                 return { name: `${employee.first_name} ${employee.last_name}`, value: employee.id }
             })
         }])
-            .then(anser => {
+            .then(answer => {
                 let query2 = `DELETE FROM employee WHERE ?`
                 connection.query(query2, [{ id: answer.empID }], (err) => {
                     if (err) throw err;
@@ -264,6 +264,8 @@ function removeEmployee() {
             })
     })
 };
+
+
 
 
 
