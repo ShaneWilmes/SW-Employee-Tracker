@@ -26,7 +26,7 @@ function init() {
     inquirer.prompt({
         type: "list",
         name: "start",
-        message: "Please make a selection from the following:",
+        message: "Which action would you like to perform?:",
         choices: ["View All Employees", "View All Departments", "View All Roles", "View All Employees By Department", "View All Employees By Manager",
             "Add Employee", "Remove Employee", "Update Employee Role", "Add Employee Role", "Remove Role", "Add New Department", "Remove Department"]
     })
@@ -67,6 +67,10 @@ function init() {
                     updateRole();
                     break;
 
+                case "Add Employee Role":
+                    addRole();
+                    break;
+
                 case "Remove Employee Role":
                     removeRole();
                     break;
@@ -99,13 +103,12 @@ function displayEmployees() {
 
     connection.query(empQuery, (err, data) => {
         if (err) throw err;
-        console.table(data);
+        console.table(data);  // data mandatory argument for console.table
         init();
     })
 };
 
 // View Departments
-
 function viewDepartments() {
     const depQuery = `SELECT * FROM department`
     connection.query(depQuery, (err, data) => {
@@ -173,19 +176,19 @@ function displayEmpMgr() {
             message: "Select a Manager to view their employees",
             choices: managers
         }])
-        .then(response => {
-            console.log(response.empManager)
-            let query2 = `SELECT employee.id, employee.first_name, employee.last_name, employee.role_id AS role, CONCAT(manager.first_name, ' ', manager.last_name) as manager, department.name AS department FROM employee
+            .then(response => {
+                console.log(response.empManager)
+                let query2 = `SELECT employee.id, employee.first_name, employee.last_name, employee.role_id AS role, CONCAT(manager.first_name, ' ', manager.last_name) as manager, department.name AS department FROM employee
             LEFT JOIN role on employee.role_id = role.id
             LEFT JOIN department on department.id = role.department_id
             LEFT JOIN employee manager on employee.manager_id = manager.id
             WHERE employee.manager_id = ?`
-            connection.query(query2, [response.empManager], (err, data) => {
-                if (eff) throw err;
-                console.table(data);
-                init()
+                connection.query(query2, [response.empManager], (err, data) => {
+                    if (err) throw err;
+                    console.table(data);
+                    init()
+                })
             })
-        })
     })
 };
 
@@ -196,46 +199,75 @@ function addEmployee() {
       FROM employee
       INNER JOIN role on role.id = employee.role_id
       INNER JOIN department ON department.id = role.department_id`
-      connection.query(addQuery, (err, results) => {
-          if (err) throw err;
-          inquirer.prompt([
-              {
-                  type: "input",
-                  name: "first_name",
-                  message: "Enter employee's first name"
-              },
-              {
+    connection.query(addQuery, (err, results) => {
+        if (err) throw err;
+        inquirer.prompt([
+            {
+                type: "input",
+                name: "first_name",
+                message: "Enter employee's first name"
+            },
+            {
                 type: "input",
                 name: "last_name",
-                message: "Enter employee's lastt name"
-              },
-              {
-                  type: "list",
-                  role: "role",
-                  message: "Select Employee title",
-                  choices:  results.map(role => {
-                      return { name: role.title, value: role.role_id }
-                  })
-              },
-              {
+                message: "Enter employee's last name"
+            },
+            {
+                type: "list",
+                role: "role",
+                message: "Select Employee title",
+                choices: results.map(role => {
+                    return { name: role.title, value: role.role_id }
+                })
+            },
+            {
                 type: "input",
-                name:  "manager",
+                name: "manager",
                 message: "Enter the Manager's ID"
-              }
-          ])
-          .then(answer => {
-            console.log(answer);
-            connection.query(
-              "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)",
-              [answer.first_name, answer.last_name, answer.role, answer.manager],
-              function (err) {
-                if (err) throw err
-                console.log(`${answer.first_name} ${answer.last_name} added as a new employee`)
-                init();
-              })
-          })
-      })
+            }
+        ])
+            .then(answer => {
+                console.log(answer);
+                connection.query(
+                    "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)",
+                    [answer.first_name, answer.last_name, answer.role, answer.manager],
+                    function (err) {
+                        if (err) throw err
+                        console.log(`${answer.first_name} ${answer.last_name} added as a new employee`)
+                        init();
+                    })
+            })
+    })
 };
+
+// Remove an employee
+function removeEmployee() {
+    let query1 = `SELECT * FROM employee`
+    connection.query(query1, (err, res) => {
+        if (err) throw err;
+        inquirer.prompt([{
+            type: "list",
+            name: "empID",
+            message: "Select an employee to be removed",
+            choices: res.map(employee => {
+                return { name: `${employee.first_name} ${employee.last_name}`, value: employee.id }
+            })
+        }])
+            .then(anser => {
+                let query2 = `DELETE FROM employee WHERE ?`
+                connection.query(query2, [{ id: answer.empID }], (err) => {
+                    if (err) throw err;
+                    console.log('Removed employee');
+                    init();
+                })
+
+            })
+    })
+};
+
+
+
+
 
 
 
