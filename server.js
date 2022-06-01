@@ -265,6 +265,103 @@ function removeEmployee() {
     })
 };
 
+// Remove a role
+function removeRole() {
+    let query1 = `SELECT * FROM role`
+    connection.query(query1, (err, res) => {
+        if (err) throw err;
+        inquirer.prompt([{
+            type: "list",
+            name: "roleID",
+            message: "Select a role to remove",
+            choices: res.map(roles => {
+                return { name: `${roles.title}`, value: role.id }
+            })
+        }])
+            .then(answer => {
+                let query2 = `DELETE FROM role WHERE ?`
+                connection.query(query2, [{ id: answer.roleID }], (err) => {
+                    if (err) throw err;
+                    console.log('Role has been removed');
+                    init();
+                })
+
+            })
+    })
+};
+
+// Update employee role(s)
+
+function updateRole() {
+    let query = `SELECT * FROM employee`
+
+    connection.query(query, (err, response) => {
+        const employees = response.map(function (element) {
+            return {
+                name: `${element.first_name} ${element.last_name}`,
+                value: element.id
+            }
+        });
+
+        inquirer.prompt([{
+            type: "list",
+            name: "employeeID",
+            message: "Select an employee role to update",
+            choices: employees
+        }])
+            .then(input1 => {
+                connection.query('SELECT * FROM role', (err, data) => {
+                    const roles = data.map(function (role) {
+                        return {
+                            name: role.title,
+                            value: role.id
+                        }
+                    });
+
+                    inquirer.prompt([{
+                        type: "list",
+                        name: "roleID",
+                        message: "Describe the role",
+                        choices: roles
+                    }])
+                        .then(input2 => {
+                            const query1 = `UPDATE employee
+                        SET employee.role_id = ?
+                        WHERE employee.id = ?`
+                            connection.query(query1, [input2.roleId, input1.employeeId], function (err, res) {
+                                var tempPosition;
+                                
+                                for (var k = 0; k < roles.length; k++) {
+                                    if (roles[k].value == input2.roleId) {
+                                        tempPosition = roles[k].name;
+                                    }
+                                }
+                                
+                                var tempName;
+                                for (var g = 0; g < employees.length; g++) {
+                                    if (employees[g].value == input1.employeeId) {
+                                        tempName = employees[g].name;
+                                    }
+                                }
+
+                                if (res.changedRows === 1) {
+                                    console.log(`Successfully updated ${tempName} to position of ${tempPosition}`);
+                                } else {
+                                    console.log(`Error: ${tempName}'s current position is ${tempPosition}`)
+                                }
+                                
+                                init();
+                            })
+                        })
+                })
+
+
+            })
+    })
+};
+
+
+
 
 
 
