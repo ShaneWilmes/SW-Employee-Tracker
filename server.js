@@ -42,11 +42,11 @@ function init() {
                 case "View All Departments":
                     viewDepartments();
                     break;
-                
+
                 case "View All Roles":
                     viewRoles();
                     break;
-                
+
                 case "View All Employees by Department":
                     displayEmpDept();
                     break;
@@ -96,63 +96,150 @@ function displayEmployees() {
     LEFT JOIN role ON employee.role_id = role.id 
     LEFT JOIN department ON role.department_id = department.id 
     LEFT JOIN employee manager ON  employee.manager_id = manager.id`
-  
+
     connection.query(empQuery, (err, data) => {
-      if (err) throw err;
-      console.table(data);
-      init();
+        if (err) throw err;
+        console.table(data);
+        init();
     })
-  };
+};
 
 // View Departments
 
-function viewDepartments(){
+function viewDepartments() {
     const depQuery = `SELECT * FROM department`
     connection.query(depQuery, (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
-      })
+    })
 }
 
 // View Roles
-function viewRoles(){
+function viewRoles() {
     const roleQuery = `SELECT * FROM role`
     connection.query(roleQuery, (err, data) => {
         if (err) throw err;
         console.table(data);
         init();
-      })
+    })
 }
 
 // View employees by department
 function displayEmpDept() {
     const depQuery1 = ('SELECT * FROM department');
-    connection.query(depQuery1, (err, response)=> {
+    connection.query(depQuery1, (err, response) => {
         if (err) throw err;
         const departments = response.map(element => {
-            return { name: `${element.name}`}
+            return { name: `${element.name}` }
         });
 
         inquirer.prompt([{
             type: "list",
             name: "dept",
-            message: "Please select a department and to view employees",
+            message: "Select a department to view its employees",
             choices: departments
 
-        }]).then(answer => {
-            const depQuery2 = `SELECT employee.first_name, employee.last_name, employee.role_id AS role, CONCAT(manager.first_name,' ',manager.last_name) AS manager, department.name as department 
+        }])
+            .then(answer => {
+                const depQuery2 = `SELECT employee.first_name, employee.last_name, employee.role_id AS role, CONCAT(manager.first_name,' ',manager.last_name) AS manager, department.name as department 
             FROM employee LEFT JOIN role on employee.role_id = role.id 
             LEFT JOIN department ON role.department_id =department.id LEFT JOIN employee manager ON employee.manager_id=manager.id
             WHERE ?`
-            connection.query(depQuery2, [{ name: answer.dept }], function (err, res) {
-                if (err) throw err;
-                console.table(res)
-                init();
+                connection.query(depQuery2, [{ name: answer.dept }], function (err, res) {
+                    if (err) throw err;
+                    console.table(res)
+                    init();
+                })
             })
-        })    
     })
 };
+
+// View employees by their Manager
+function displayEmpMgr() {
+    let query1 = `SELECT * FROM employee e WHERE e manager_id IS NULL`
+
+    connection.query(query1, function (err, res) {
+        if (err) throw err;
+        const managers = res.map(function (element) {
+            return {
+                name: `${element.first_name} ${element.last_name}`,
+                value: element.id
+            }
+        });
+        inquirer.prompt([{
+            type: "list",
+            name: "empManager",
+            message: "Select a Manager to view their employees",
+            choices: managers
+        }])
+        .then(response => {
+            console.log(response.empManager)
+            let query2 = `SELECT employee.id, employee.first_name, employee.last_name, employee.role_id AS role, CONCAT(manager.first_name, ' ', manager.last_name) as manager, department.name AS department FROM employee
+            LEFT JOIN role on employee.role_id = role.id
+            LEFT JOIN department on department.id = role.department_id
+            LEFT JOIN employee manager on employee.manager_id = manager.id
+            WHERE employee.manager_id = ?`
+            connection.query(query2, [response.empManager], (err, data) => {
+                if (eff) throw err;
+                console.table(data);
+                init()
+            })
+        })
+    })
+};
+
+// Add a new employee
+function addEmployee() {
+    let addQuery = `SELECT employee.id, employee.first_name, employee.last_name, employee.role_id, role.title, department.name,
+    role.salary, employee.manager_id 
+      FROM employee
+      INNER JOIN role on role.id = employee.role_id
+      INNER JOIN department ON department.id = role.department_id`
+      connection.query(addQuery, (err, results) => {
+          if (err) throw err;
+          inquirer.prompt([
+              {
+                  type: "input",
+                  name: "first_name",
+                  message: "Enter employee's first name"
+              },
+              {
+                type: "input",
+                name: "last_name",
+                message: "Enter employee's lastt name"
+              },
+              {
+                  type: "list",
+                  role: "role",
+                  message: "Select Employee title",
+                  choices:  results.map(role => {
+                      return { name: role.title, value: role.role_id }
+                  })
+              },
+              {
+                type: "input",
+                name:  "manager",
+                message: "Enter the Manager's ID"
+              }
+          ])
+          .then(answer => {
+            console.log(answer);
+            connection.query(
+              "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)",
+              [answer.first_name, answer.last_name, answer.role, answer.manager],
+              function (err) {
+                if (err) throw err
+                console.log(`${answer.first_name} ${answer.last_name} added as a new employee`)
+                init();
+              })
+          })
+      })
+};
+
+
+
+
 
 
 
