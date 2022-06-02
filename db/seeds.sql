@@ -11,7 +11,7 @@ VALUES ('Bussiness Manager', 1, 125000),
  ('Admin Manager', 3, 85000),
  ('Admin Asst.', 3, 60000),
  ('HR Manager', 4, 95000),
- ('Service Asst.', 4, 75000),
+ ('Service Asst.', 4, 75000);
 
  INSERT INTO employee (first_name, last_name, role_id, manager_id)
  VALUES ('Paul', 'Smith', 1, NULL),

@@ -7,7 +7,6 @@ const { response } = require("express");
 // Create a connection and log it to the console
 const connection = mysql.createConnection({
     host: "localhost",
-    port: 3001,
     user: "root",
     password: "1234",
     database: "employee_db"
@@ -157,7 +156,7 @@ function displayEmpDept() {
 
 // View employees by their Manager
 function displayEmpMgr() {
-    let query1 = `SELECT * FROM employee e WHERE e manager_id IS NULL`
+    let query1 = `SELECT * FROM employee WHERE manager_id IS NULL`
 
     connection.query(query1, function (err, res) {
         if (err) throw err;
