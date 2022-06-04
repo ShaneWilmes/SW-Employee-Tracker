@@ -18,10 +18,10 @@ VALUES ('Bussiness Manager', 1, 125000),
   ('Brian', 'Roberts', 1, 1),
   ('Richard', 'Jefferson', 2, NULL),
   ('Carley', 'Stevens', 2, 2),
-  ('John', 'Lannen', 3, NULL),
-  ('David','Conover', 3, 3),
-  ('Regina', 'Jones', 4, NULL),
-  ('Stacy', 'Johnson', 4, 4);
+  ('John', 'Lannen', 5, NULL),
+  ('David','Conover', 6, 5),
+  ('Regina', 'Jones', 7, NULL),
+  ('Stacy', 'Johnson', 8, 7);
 
   
 

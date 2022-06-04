@@ -46,11 +46,11 @@ function init() {
                     viewRoles();
                     break;
 
-                case "View All Employees by Department":
+                case "View All Employees By Department":
                     displayEmpDept();
                     break;
 
-                case "View All Employees by Manager":
+                case "View All Employees By Manager":
                     displayEmpMgr();
                     break;
 
@@ -126,13 +126,18 @@ function viewRoles() {
 
 // View employees by department
 function displayEmpDept() {
-    const depQuery1 = ('SELECT * FROM department');
-    connection.query(depQuery1, (err, response) => {
+    
+    const depQuery1 = `SELECT * FROM department`
+    connection.query(depQuery1, (err, data) => {
+        
         if (err) throw err;
-        const departments = response.map(element => {
-            return { name: `${element.name}` }
+                
+        const departments = data.map(element => {
+           
+            return { name: `${element.name}`, value: `${element.id}` }
         });
-
+        
+    
         inquirer.prompt([{
             type: "list",
             name: "dept",
@@ -141,11 +146,12 @@ function displayEmpDept() {
 
         }])
             .then(answer => {
+                
                 const depQuery2 = `SELECT employee.first_name, employee.last_name, employee.role_id AS role, CONCAT(manager.first_name,' ',manager.last_name) AS manager, department.name as department 
             FROM employee LEFT JOIN role on employee.role_id = role.id 
             LEFT JOIN department ON role.department_id =department.id LEFT JOIN employee manager ON employee.manager_id=manager.id
-            WHERE ?`
-                connection.query(depQuery2, [{ name: answer.dept }], function (err, res) {
+            WHERE department_id=`+ answer.dept
+                connection.query(depQuery2, function (err, res) {
                     if (err) throw err;
                     console.table(res)
                     init();
@@ -155,7 +161,8 @@ function displayEmpDept() {
 };
 
 // View employees by their Manager
-function displayEmpMgr() {
+function 
+displayEmpMgr() {
     let query1 = `SELECT * FROM employee WHERE manager_id IS NULL`
 
     connection.query(query1, function (err, res) {
