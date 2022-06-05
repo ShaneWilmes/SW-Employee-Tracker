@@ -70,7 +70,7 @@ function init() {
                     addRole();
                     break;
 
-                case "Remove Employee Role":
+                case "Remove Role":
                     removeRole();
                     break;
 
@@ -81,7 +81,7 @@ function init() {
                 case "Remove Department":
                     removeDepartment();
                     break;
-                
+
             }
         })
 
@@ -126,18 +126,18 @@ function viewRoles() {
 
 // View employees by department
 function displayEmpDept() {
-    
+
     const depQuery1 = `SELECT * FROM department`
     connection.query(depQuery1, (err, data) => {
-        
+
         if (err) throw err;
-                
+
         const departments = data.map(element => {
-           
+
             return { name: `${element.name}`, value: `${element.id}` }
         });
-        
-    
+
+
         inquirer.prompt([{
             type: "list",
             name: "dept",
@@ -146,7 +146,7 @@ function displayEmpDept() {
 
         }])
             .then(answer => {
-                
+
                 const depQuery2 = `SELECT employee.first_name, employee.last_name, employee.role_id AS role, CONCAT(manager.first_name,' ',manager.last_name) AS manager, department.name as department 
             FROM employee LEFT JOIN role on employee.role_id = role.id 
             LEFT JOIN department ON role.department_id =department.id LEFT JOIN employee manager ON employee.manager_id=manager.id
@@ -161,8 +161,8 @@ function displayEmpDept() {
 };
 
 // View employees by their Manager
-function 
-displayEmpMgr() {
+function
+    displayEmpMgr() {
     let query1 = `SELECT * FROM employee WHERE manager_id IS NULL`
 
     connection.query(query1, function (err, res) {
@@ -204,42 +204,38 @@ function addEmployee() {
       INNER JOIN department ON department.id = role.department_id`
     connection.query(addQuery, (err, results) => {
         if (err) throw err;
-        inquirer.prompt([
-            {
-                type: "input",
-                name: "first_name",
-                message: "Enter employee's first name"
-            },
-            {
-                type: "input",
-                name: "last_name",
-                message: "Enter employee's last name"
-            },
-            {
-                type: "list",
-                role: "role",
-                message: "Select Employee title",
-                choices: results.map(role => {
-                    return { name: role.title, value: role.role_id }
+        {
+            inquirer
+                .prompt(
+                    [
+                        {
+                            type: 'input',
+                            name: 'first_name',
+                            message: 'Enter the first name of the employee'
+                        },
+                        {
+                            type: 'input',
+                            name: 'last_name',
+                            message: 'Enter in the last name of the employee'
+                        },
+                        {
+                            type: 'input',
+                            name: 'role_id',
+                            message: 'What role ID do you want this employee to be?'
+                        },
+                    ]
+                )
+                .then((response) => {
+                    const firstName = response.first_name
+                    const lastName = response.last_name
+                    const roleId = response.role_id
+                    connection.query(
+                        `INSERT INTO employee (first_name, last_name, role_ID) VALUES (?, ?, ?);`, [firstName, lastName, roleId]
+                    );
+                    console.log('\n Added ' + firstName, lastName + ' to the database! \n')
+                    init();
                 })
-            },
-            {
-                type: "input",
-                name: "manager",
-                message: "Enter the Manager's ID"
-            }
-        ])
-            .then(answer => {
-                console.log(answer);
-                connection.query(
-                    "INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)",
-                    [answer.first_name, answer.last_name, answer.role, answer.manager],
-                    function (err) {
-                        if (err) throw err
-                        console.log(`${answer.first_name} ${answer.last_name} added as a new employee`)
-                        init();
-                    })
-            })
+        }
     })
 };
 
@@ -270,27 +266,23 @@ function removeEmployee() {
 
 // Remove a role
 function removeRole() {
-    let query1 = `SELECT * FROM role`
-    connection.query(query1, (err, res) => {
-        if (err) throw err;
-        inquirer.prompt([{
-            type: "list",
-            name: "roleID",
-            message: "Select a role to remove",
-            choices: res.map(roles => {
-                return { name: `${roles.title}`, value: role.id }
-            })
-        }])
-            .then(answer => {
-                let query2 = `DELETE FROM role WHERE ?`
-                connection.query(query2, [{ id: answer.roleID }], (err) => {
-                    if (err) throw err;
-                    console.log('Role has been removed');
-                    init();
-                })
-
-            })
-    })
+    inquirer
+        .prompt(
+            [
+                {
+                    type: 'input',
+                    name: 'removedRole',
+                    message: 'Which Role would you like to remove?'
+                }
+            ]
+        )
+        .then((response) => {
+            let removedRole = response.removedRole
+            connection.query(
+                `DELETE FROM role WHERE employee_id = ?;`, [removedRole]
+            )
+            init();
+        })
 };
 
 // Update employee role(s)
@@ -333,13 +325,13 @@ function updateRole() {
                         WHERE employee.id = ?`
                             connection.query(query1, [input2.roleId, input1.employeeId], function (err, res) {
                                 var tempPosition;
-                                
+
                                 for (var k = 0; k < roles.length; k++) {
                                     if (roles[k].value == input2.roleId) {
                                         tempPosition = roles[k].name;
                                     }
                                 }
-                                
+
                                 var tempName;
                                 for (var g = 0; g < employees.length; g++) {
                                     if (employees[g].value == input1.employeeId) {
@@ -352,7 +344,7 @@ function updateRole() {
                                 } else {
                                     console.log(`Error: ${tempName}'s current position is ${tempPosition}`)
                                 }
-                                
+
                                 init();
                             })
                         })
@@ -389,13 +381,16 @@ function addRole() {
                 name: "deptID",
                 message: "Enter new role department ID"
             }])
-            .then(function (answers) {
-                let query2 = `INSERT INTO role VALUES (?,?,?,?)`
-                connection.query(query2, [answers.roleID, answers.role, answers.salary, answers.deptID]), function (err) {
-                    if (err) throw err;
-                    console.log(`${answers.role} now added as a new role`)
-                    init();
-                }
+            .then((response) => {
+                const newRole = response.roleID
+                const roleTitle = response.role
+                const salary = response.salary
+                const deptID = response.deptID
+                connection.query(
+                    `INSERT INTO role (roleID, role, salary, deptID) VALUES (?, ?, ?);`, [newRole, roleTitle, salary, deptID]
+                );
+                console.log('\n Added ' + newRole, roleTitle, salary, deptID + ' to the database! \n')
+                init();
             })
 
     })
@@ -403,22 +398,35 @@ function addRole() {
 
 // Add a department
 function addDepartment() {
-    let query1 = `SELECT * FROM department`
-    connection.query(query1, (err, res) => {
-        if (err) throw err
-        inquirer.prompt([{
-            type: "input",
-            name: "deptID",
-            message: "Enter ID for new department"
-        }])
-        .then(function (answers) {
-            let query2 = `INSERT INTO role VALUES (?,?)`
-            connection.query(query2, [answers.deptID, answers.deptName]), function (err) {
-                if (err) throw err;
-                console.log(`${answers.deptName}  added as a new role`)
-                init();
-            }
-        })
+    // let query1 = `SELECT * FROM department`
+    connection.query(addQuery, (err, results) => {
+        
+        {
+            inquirer
+                .prompt(
+                    [
+                        {
+                            type: 'input',
+                            name: 'dept',
+                            message: 'Enter the name of the new department employee'
+                        },
+                        {
+                            type: 'input',
+                            name: 'dept_id',
+                            message: 'What ID do you want this department to be?'
+                        },
+                    ]
+                )
+                .then((response) => {
+                    const deptName = response.deptName
+                    const deptId = response.dept_id
+                    connection.query(
+                        `INSERT INTO department (dept, dept_ID) VALUES (?, ?,);`, [deptName, deptId]
+                    );
+                    console.log('\n Added ' + deptName, deptId + ' to the database! \n')
+                    init();
+                })
+        }
     })
 };
 
@@ -431,18 +439,18 @@ function removeDepartment() {
             type: "input",
             name: "deptID",
             message: "Select a department to remove",
-            choices: res.map(departments =>{
+            choices: res.map(departments => {
                 return { name: `${departments.name}`, value: departments.id }
             })
         }])
-        .then(function (answers) {
-            let query2 = `DELETE FROM department WHERE ?`
-            connection.query(query2, [{ id: answer.deptID }]), function (err) {
-                if (err) throw err;
-                console.log("Department removed")
-                init();
-            }
-        })
+            .then(function (answers) {
+                let query2 = `DELETE FROM department WHERE ?`
+                connection.query(query2, [{ id: answer.deptID }]), function (err) {
+                    if (err) throw err;
+                    console.log("Department removed")
+                    init();
+                }
+            })
     })
 };
 

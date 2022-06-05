@@ -15,9 +15,9 @@ VALUES ('Bussiness Manager', 1, 125000),
 
  INSERT INTO employee (first_name, last_name, role_id, manager_id)
  VALUES ('Paul', 'Smith', 1, NULL),
-  ('Brian', 'Roberts', 1, 1),
-  ('Richard', 'Jefferson', 2, NULL),
-  ('Carley', 'Stevens', 2, 2),
+  ('Brian', 'Roberts', 2, 1),
+  ('Richard', 'Jefferson', 3, NULL),
+  ('Carley', 'Stevens', 4, 3),
   ('John', 'Lannen', 5, NULL),
   ('David','Conover', 6, 5),
   ('Regina', 'Jones', 7, NULL),
