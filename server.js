@@ -398,8 +398,8 @@ function addRole() {
 
 // Add a department
 function addDepartment() {
-    // let query1 = `SELECT * FROM department`
-    connection.query(addQuery, (err, results) => {
+    let query1 = `SELECT * FROM department`
+    
         
         {
             inquirer
@@ -408,7 +408,7 @@ function addDepartment() {
                         {
                             type: 'input',
                             name: 'dept',
-                            message: 'Enter the name of the new department employee'
+                            message: 'Enter the name of the new department'
                         },
                         {
                             type: 'input',
@@ -427,7 +427,7 @@ function addDepartment() {
                     init();
                 })
         }
-    })
+    
 };
 
 // Remove a department
