@@ -421,7 +421,7 @@ function addDepartment() {
                     const deptName = response.deptName
                     const deptId = response.dept_id
                     connection.query(
-                        `INSERT INTO department (dept, dept_ID) VALUES (?, ?,);`, [deptName, deptId]
+                        `INSERT INTO department (dept, dept_id) VALUES (?, ?,);`, [deptName, deptId]
                     );
                     console.log('\n Added ' + deptName, deptId + ' to the database! \n')
                     init();
@@ -429,6 +429,9 @@ function addDepartment() {
         }
     
 };
+
+
+
 
 // Remove a department
 function removeDepartment() {
