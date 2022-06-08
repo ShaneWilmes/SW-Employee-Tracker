@@ -368,7 +368,7 @@ function addRole() {
             },
             {
                 type: "input",
-                name: "role",
+                name: "title",
                 message: "Enter title for new role"
             },
             {
@@ -383,11 +383,11 @@ function addRole() {
             }])
             .then((response) => {
                 const newRole = response.roleID
-                const roleTitle = response.role
+                const roleTitle = response.title
                 const salary = response.salary
                 const deptID = response.deptID
                 connection.query(
-                    `INSERT INTO role (roleID, role, salary, deptID) VALUES (?, ?, ?);`, [newRole, roleTitle, salary, deptID]
+                    `INSERT INTO role (roleID, title, salary, deptID) VALUES (?, ?, ?, ?);`, [newRole, roleTitle, salary, deptID]
                 );
                 console.log('\n Added ' + newRole, roleTitle, salary, deptID + ' to the database! \n')
                 init();
@@ -419,7 +419,7 @@ function addDepartment() {
                 )
                 .then((response) => {
                     const deptName = response.deptName
-                    const deptId = response.dept_id
+                    const deptId = response.deptId
                     connection.query(
                         `INSERT INTO department (dept, dept_id) VALUES (?, ?,);`, [deptName, deptId]
                     );
