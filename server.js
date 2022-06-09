@@ -370,7 +370,7 @@ function addRole() {
                 const salary = response.salary
                 const deptID = response.deptID
                 connection.query(
-                    `INSERT INTO role (id, title, salary, deptID) VALUES (?, ?, ?, ?);`, [newRole, roleTitle, salary, deptID]
+                    `INSERT INTO role (id, title, salary, department_id) VALUES (?, ?, ?, ?)`, [newRole, roleTitle, salary, deptID]
                 );
                 console.log('\n Added ' + newRole, roleTitle, salary, deptID + ' to the database! \n')
                 init();
