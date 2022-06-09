@@ -445,7 +445,7 @@ function removeDepartment() {
             })
     })
 };
-
+//Notes for BCS help
 
 
 
