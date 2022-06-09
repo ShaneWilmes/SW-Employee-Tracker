@@ -272,14 +272,14 @@ function removeRole() {
                 {
                     type: 'input',
                     name: 'removedRole',
-                    message: 'Which Role would you like to remove?'
+                    message: 'Which Role ID would you like to remove?'
                 }
             ]
         )
         .then((response) => {
             let removedRole = response.removedRole
             connection.query(
-                `DELETE FROM role WHERE employee_id = ?;`, [removedRole]
+                `DELETE FROM role WHERE role_id = ?`, [removedRole]
             )
             init();
         })
@@ -319,34 +319,17 @@ function updateRole() {
                         message: "Describe the role",
                         choices: roles
                     }])
+                    
                         .then(input2 => {
+                            console.log("input employee.id", input1.employeeID)
                             const query1 = `UPDATE employee
                         SET employee.role_id = ?
                         WHERE employee.id = ?`
-                            connection.query(query1, [input2.roleId, input1.employeeId], function (err, res) {
-                                var tempPosition;
+                            connection.query(query1, [input2.roleID, input1.employeeID], function (err, res) {
+                                
 
-                                for (var k = 0; k < roles.length; k++) {
-                                    if (roles[k].value == input2.roleId) {
-                                        tempPosition = roles[k].name;
-                                    }
-                                }
-
-                                var tempName;
-                                for (var g = 0; g < employees.length; g++) {
-                                    if (employees[g].value == input1.employeeId) {
-                                        tempName = employees[g].name;
-                                    }
-                                }
-
-                                if (res.changedRows === 1) {
-                                    console.log(`Successfully updated ${tempName} to position of ${tempPosition}`);
-                                } else {
-                                    console.log(`Error: ${tempName}'s current position is ${tempPosition}`)
-                                }
-
-                                init();
                             })
+                            init();
                         })
                 })
 
@@ -399,35 +382,39 @@ function addRole() {
 // Add a department
 function addDepartment() {
     let query1 = `SELECT * FROM department`
-    
-        
-        {
-            inquirer
-                .prompt(
-                    [
-                        {
-                            type: 'input',
-                            name: 'dept',
-                            message: 'Enter the name of the new department'
-                        },
-                        {
-                            type: 'input',
-                            name: 'dept_id',
-                            message: 'What ID do you want this department to be?'
-                        },
-                    ]
+
+
+    {
+        inquirer
+            .prompt(
+                [
+                    {
+                        type: 'input',
+                        name: 'dept',
+                        message: 'Enter the name of the new department'
+                    },
+                    {
+                        type: 'input',
+                        name: 'dept_id',
+                        message: 'What ID do you want this department to be?'
+                    },
+                ]
+            )
+            .then((response) => {
+                const deptName = response.dept
+                const deptId = response.dept_id
+                connection.query(
+                    `INSERT INTO department (name, id) VALUES (?, ?);`, [deptName, deptId]
                 )
-                .then((response) => {
-                    const deptName = response.deptName
-                    const deptId = response.deptId
-                    connection.query(
-                        `INSERT INTO department (dept, dept_id) VALUES (?, ?,);`, [deptName, deptId]
-                    );
-                    console.log('\n Added ' + deptName, deptId + ' to the database! \n')
-                    init();
-                })
-        }
-    
+
+                console.log('\n Added ' + deptName, deptId + ' to the database! \n')
+                init();
+
+
+
+            });
+    }
+
 };
 
 
@@ -441,18 +428,20 @@ function removeDepartment() {
         inquirer.prompt([{
             type: "input",
             name: "deptID",
-            message: "Select a department to remove",
+            message: "Select a department id to remove",
             choices: res.map(departments => {
                 return { name: `${departments.name}`, value: departments.id }
             })
         }])
             .then(function (answers) {
                 let query2 = `DELETE FROM department WHERE ?`
-                connection.query(query2, [{ id: answer.deptID }]), function (err) {
+                connection.query(query2, [{ id: answers.deptID }]), function (err) {
                     if (err) throw err;
-                    console.log("Department removed")
-                    init();
+
+
                 }
+                console.log("Department removed")
+                init();
             })
     })
 };
