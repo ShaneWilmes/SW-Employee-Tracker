@@ -279,7 +279,7 @@ function removeRole() {
         .then((response) => {
             let removedRole = response.removedRole
             connection.query(
-                `DELETE FROM role WHERE role_id = ?`, [removedRole]
+                `DELETE FROM role WHERE id = ?`, [removedRole]
             )
             init();
         })
@@ -346,7 +346,7 @@ function addRole() {
         inquirer.prompt([
             {
                 type: "input",
-                name: "roleID",
+                name: "id",
                 message: "Enter ID for new role"
             },
             {
@@ -365,12 +365,12 @@ function addRole() {
                 message: "Enter new role department ID"
             }])
             .then((response) => {
-                const newRole = response.roleID
+                const newRole = response.id
                 const roleTitle = response.title
                 const salary = response.salary
                 const deptID = response.deptID
                 connection.query(
-                    `INSERT INTO role (roleID, title, salary, deptID) VALUES (?, ?, ?, ?);`, [newRole, roleTitle, salary, deptID]
+                    `INSERT INTO role (id, title, salary, deptID) VALUES (?, ?, ?, ?);`, [newRole, roleTitle, salary, deptID]
                 );
                 console.log('\n Added ' + newRole, roleTitle, salary, deptID + ' to the database! \n')
                 init();
